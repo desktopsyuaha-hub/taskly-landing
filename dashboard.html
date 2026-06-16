@@ -8,128 +8,420 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --indigo: #4f46e5;
-      --ink:    #0f0f1a;
-      --muted:  #6b7280;
-      --paper:  #f7f7fb;
-      --border: #e5e7eb;
+      --indigo: #4f46e5; --violet: #7c3aed; --ink: #0f0f1a;
+      --muted: #6b7280; --border: #e5e7eb; --paper: #f7f7fb;
+      --green: #16a34a; --red: #dc2626;
     }
     body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); }
-    .topbar {
-      background: #fff;
+
+    /* SIDEBAR */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; background: #fff; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 24px 0;
+      position: fixed; top: 0; left: 0; height: 100vh; z-index: 50;
+    }
+    .sidebar-logo {
+      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
+      color: var(--indigo); padding: 0 24px 28px;
       border-bottom: 1px solid var(--border);
-      padding: 16px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--indigo);
+    .sidebar-logo span { color: var(--ink); }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); padding: 0 12px;
+      margin: 16px 0 8px;
     }
-    .logo span { color: var(--ink); }
-    .user-info { display: flex; align-items: center; gap: 14px; }
-    .user-info span { font-size: 0.88rem; color: var(--muted); }
-    .btn-logout {
-      padding: 8px 18px;
-      background: none;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; text-decoration: none;
+      color: var(--muted); font-size: 0.88rem; font-weight: 500;
+      transition: all .2s; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--paper); color: var(--ink); }
+    .nav-item.active { background: #eef2ff; color: var(--indigo); font-weight: 600; }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-bottom {
+      padding: 16px 12px; border-top: 1px solid var(--border);
+    }
+    .user-pill {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: var(--paper); cursor: pointer;
+      text-decoration: none;
+    }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--indigo), var(--violet));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+    }
+    .user-pill-info strong {
+      display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+    }
+    .user-pill-info span { font-size: 0.72rem; color: var(--muted); }
+
+    /* MAIN */
+    .main { margin-left: 240px; flex: 1; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: 16px 32px; display: flex; justify-content: space-between;
+      align-items: center; position: sticky; top: 0; z-index: 40;
+    }
+    .topbar h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .btn-upgrade {
+      padding: 8px 18px; background: var(--indigo); color: #fff;
+      border: none; border-radius: 8px; font-family: 'Inter', sans-serif;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: none;
       transition: all .2s;
     }
-    .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
-    .main { padding: 48px 7%; max-width: 1000px; margin: 0 auto; }
-    .welcome {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin-bottom: 8px;
+    .btn-upgrade:hover { background: var(--violet); }
+    .notif {
+      width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; background: #fff;
     }
-    .welcome-sub { color: var(--muted); margin-bottom: 40px; font-size: 0.95rem; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+
+    .content { padding: 32px; }
+
+    /* WELCOME BANNER */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--violet) 100%);
+      border-radius: 16px; padding: 28px 32px; color: #fff;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 28px;
+    }
+    .welcome-banner h2 {
+      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .welcome-banner p { font-size: 0.88rem; opacity: 0.85; }
+    .plan-badge {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      color: #fff; padding: 6px 16px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
     .stat-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 24px;
+      background: #fff; border-radius: 14px; padding: 22px 20px;
       border: 1px solid var(--border);
     }
-    .stat-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--ink); }
-    .coming-soon {
-      margin-top: 48px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 48px;
-      text-align: center;
+    .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
+    .stat-change { font-size: 0.75rem; color: var(--green); font-weight: 600; }
+
+    /* GRID 2 COL */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .card {
+      background: #fff; border-radius: 14px; padding: 24px;
       border: 1px solid var(--border);
     }
-    .coming-soon h2 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
-    .coming-soon p { color: var(--muted); font-size: 0.92rem; }
-    #loading { text-align: center; padding: 80px; color: var(--muted); }
+    .card-title {
+      font-size: 0.88rem; font-weight: 700; color: var(--ink);
+      margin-bottom: 16px; display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .card-title a { font-size: 0.78rem; color: var(--indigo); text-decoration: none; font-weight: 600; }
+
+    /* TASKS */
+    .task-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-check {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0; cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center;
+    }
+    .task-check.done { background: var(--indigo); border-color: var(--indigo); color: #fff; font-size: 0.6rem; }
+    .task-name { flex: 1; color: var(--ink); }
+    .task-name.done { text-decoration: line-through; color: var(--muted); }
+    .task-tag {
+      font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .tag-blue { background: #eef2ff; color: var(--indigo); }
+    .tag-yellow { background: #fefce8; color: #ca8a04; }
+    .tag-red { background: #fef2f2; color: var(--red); }
+
+    /* ACTIVITY */
+    .activity-item {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.83rem;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--indigo); flex-shrink: 0; margin-top: 6px;
+    }
+    .activity-text { color: var(--muted); line-height: 1.5; }
+    .activity-text strong { color: var(--ink); }
+    .activity-time { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* PROGRESS BAR */
+    .progress-row { margin-bottom: 14px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; }
+    .progress-info span:first-child { color: var(--ink); font-weight: 500; }
+    .progress-info span:last-child { color: var(--muted); }
+    .progress-bar { height: 6px; background: var(--paper); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--indigo), var(--violet)); }
+
+    /* QUICK ACTIONS */
+    .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+    .quick-btn {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 12px; text-align: center; cursor: pointer;
+      transition: all .2s; text-decoration: none; color: var(--ink);
+    }
+    .quick-btn:hover { border-color: var(--indigo); background: #eef2ff; }
+    .quick-btn .q-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
+    .quick-btn span { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+
+    /* LOADING */
+    #loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-size: 0.95rem; color: var(--muted);
+      flex-direction: column; gap: 16px;
+    }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--indigo); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
 
-<div id="loading">Checking your session...</div>
+<div id="loading">
+  <div class="spinner"></div>
+  <span>Loading your workspace...</span>
+</div>
 
 <div id="app" style="display:none;">
-  <div class="topbar">
-    <div class="logo">Task<span>ly</span></div>
-    <div class="user-info">
-      <span id="user-email"></span>
-      <button class="btn-logout" onclick="logout()">Log out</button>
-    </div>
-  </div>
-  <div class="main">
-    <div class="welcome">Good to see you, <span id="user-name">there</span> 👋</div>
-    <div class="welcome-sub">Here's your Taskly workspace.</div>
-    <div class="cards">
-      <div class="stat-card">
-        <div class="stat-label">Projects</div>
-        <div class="stat-value">0</div>
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">Task<span>ly</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">Workspace</div>
+        <a href="dashboard.html" class="nav-item active">
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">📋</span> My Tasks
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">📁</span> Projects
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">📅</span> Calendar
+        </a>
+        <div class="nav-label">Account</div>
+        <a href="profile.html" class="nav-item">
+          <span class="icon">👤</span> Profile
+        </a>
+        <a href="pricing.html" class="nav-item">
+          <span class="icon">⚡</span> Upgrade Plan
+        </a>
+        <a href="#" class="nav-item" onclick="logout(); return false;">
+          <span class="icon">🚪</span> Log out
+        </a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="profile.html" class="user-pill">
+          <div class="avatar-sm" id="sidebar-avatar">?</div>
+          <div class="user-pill-info">
+            <strong id="sidebar-name">Loading...</strong>
+            <span id="sidebar-email">...</span>
+          </div>
+        </a>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Tasks open</div>
-        <div class="stat-value">0</div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+      <div class="topbar">
+        <h1>Dashboard</h1>
+        <div class="topbar-right">
+          <span class="notif">🔔</span>
+          <a href="pricing.html" class="btn-upgrade">⚡ Upgrade</a>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Completed</div>
-        <div class="stat-value">0</div>
+
+      <div class="content">
+        <!-- WELCOME -->
+        <div class="welcome-banner">
+          <div>
+            <h2>Welcome back, <span id="welcome-name">there</span> 👋</h2>
+            <p>Here's what's happening in your workspace today.</p>
+          </div>
+          <span class="plan-badge" id="plan-badge">FREE PLAN</span>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+          <a href="#" class="quick-btn">
+            <span class="q-icon">➕</span>
+            <span>New Task</span>
+          </a>
+          <a href="#" class="quick-btn">
+            <span class="q-icon">📁</span>
+            <span>New Project</span>
+          </a>
+          <a href="profile.html" class="quick-btn">
+            <span class="q-icon">👤</span>
+            <span>My Profile</span>
+          </a>
+          <a href="pricing.html" class="quick-btn">
+            <span class="q-icon">⚡</span>
+            <span>Upgrade</span>
+          </a>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Tasks</div>
+            <div class="stat-value">12</div>
+            <div class="stat-change">↑ 3 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value">8</div>
+            <div class="stat-change">↑ 67% rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value">3</div>
+            <div class="stat-change" style="color:#ca8a04;">Active now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Overdue</div>
+            <div class="stat-value">1</div>
+            <div class="stat-change" style="color:var(--red);">Needs attention</div>
+          </div>
+        </div>
+
+        <!-- TASKS + ACTIVITY -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Recent Tasks <a href="#">View all →</a></div>
+            <div class="task-item">
+              <div class="task-check done">✓</div>
+              <span class="task-name done">Set up Supabase auth</span>
+              <span class="task-tag tag-blue">Dev</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check done">✓</div>
+              <span class="task-name done">Design landing page</span>
+              <span class="task-tag tag-blue">Design</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-name">Build dashboard UI</span>
+              <span class="task-tag tag-yellow">In progress</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-name">Add payment integration</span>
+              <span class="task-tag tag-red">Overdue</span>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <span class="task-name">Write privacy policy</span>
+              <span class="task-tag tag-blue">Legal</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Recent Activity</div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text"><strong>You</strong> completed "Set up Supabase auth"</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#16a34a;"></div>
+              <div>
+                <div class="activity-text"><strong>You</strong> created a new project "Taskly Build"</div>
+                <div class="activity-time">Yesterday</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#ca8a04;"></div>
+              <div>
+                <div class="activity-text"><strong>You</strong> updated your profile</div>
+                <div class="activity-time">2 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text"><strong>You</strong> signed up for Taskly 🎉</div>
+                <div class="activity-time">3 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECTS PROGRESS -->
+        <div class="card">
+          <div class="card-title">Project Progress <a href="#">All projects →</a></div>
+          <div class="progress-row">
+            <div class="progress-info"><span>Taskly Build</span><span>8/12 tasks</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-info"><span>Client Website</span><span>3/10 tasks</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-info"><span>Marketing Campaign</span><span>5/5 tasks</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="coming-soon">
-      <h2>Your workspace is ready 🚀</h2>
-      <p>This is where your projects and tasks will live.<br>Full features coming soon.</p>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // ⚠️ SAME SUPABASE DETAILS AS signup.html
-  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.supabase.co'
-  const SUPABASE_KEY = 'sb_publishable_yFTME482ckovqLpJhZjnyA_73HkrZmj'
-
+  const SUPABASE_URL = 'YOUR_PROJECT_URL'
+  const SUPABASE_KEY = 'YOUR_ANON_KEY'
   const { createClient } = supabase
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession()
-    if (!session) {
-      window.location.href = 'signup.html'
-      return
-    }
+    if (!session) { window.location.href = 'signup.html'; return; }
     const user = session.user
-    document.getElementById('user-email').textContent = user.email
-    document.getElementById('user-name').textContent =
-      user.user_metadata?.full_name?.split(' ')[0] || 'there'
+    const name = user.user_metadata?.full_name || user.email.split('@')[0]
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+    document.getElementById('welcome-name').textContent = name.split(' ')[0]
+    document.getElementById('sidebar-name').textContent = name
+    document.getElementById('sidebar-email').textContent = user.email
+    document.getElementById('sidebar-avatar').textContent = initials
     document.getElementById('loading').style.display = 'none'
     document.getElementById('app').style.display = 'block'
   }
