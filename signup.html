@@ -283,12 +283,15 @@
   }
 
   async function handleGoogle() {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard.html' }
-    })
-    if (error) showMsg(error.message, 'error')
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://tasklylanding.vercel.app/dashboard.html'
+    }
+  })
+  if (error) showMsg(error.message, 'error')
   }
+  
 </script>
 </body>
 </html>
