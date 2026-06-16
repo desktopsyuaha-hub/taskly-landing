@@ -279,14 +279,14 @@
     btn.disabled = false
     btn.textContent = 'Log in'
     if (error) return showMsg(error.message, 'error')
-    window.location.href = 'dashboard.html'
+    window.location.href = 'profile.html'
   }
 
   async function handleGoogle() {
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'https://tasklylanding.vercel.app/dashboard.html'
+      redirectTo: 'https://tasklylanding.vercel.app/profile.html'
     }
   })
   if (error) showMsg(error.message, 'error')
