@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taskly – Pricing & Upgrade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --indigo: #4f46e5; --violet: #7c3aed; --ink: #0f0f1a; --muted: #6b7280; --border: #e5e7eb; --paper: #f7f7fb; }
+    body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); }
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; top: 0; left: 0; height: 100vh; }
+    .sidebar-logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--indigo); padding: 0 24px 28px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo span { color: var(--ink); }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 0 12px; margin: 16px 0 8px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--muted); font-size: 0.88rem; font-weight: 500; transition: all .2s; margin-bottom: 2px; }
+    .nav-item:hover { background: var(--paper); color: var(--ink); }
+    .nav-item.active { background: #eef2ff; color: var(--indigo); font-weight: 600; }
+    .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-bottom { padding: 16px 12px; border-top: 1px solid var(--border); }
+    .user-pill { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--paper); cursor: pointer; text-decoration: none; }
+    .avatar-sm { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--indigo), var(--violet)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+    .user-pill-info strong { display: block; font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+    .user-pill-info span { font-size: 0.72rem; color: var(--muted); }
+    .main { margin-left: 240px; flex: 1; }
+    .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 16px 32px; }
+    .topbar h1 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; }
+    .content { padding: 40px 32px; }
+
+    .page-header { text-align: center; margin-bottom: 48px; }
+    .page-header h2 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+    .page-header p { color: var(--muted); font-size: 1rem; }
+
+    .current-plan {
+      background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 14px;
+      padding: 18px 24px; display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;
+    }
+    .current-plan strong { font-size: 0.9rem; color: var(--indigo); }
+    .current-plan span { font-size: 0.82rem; color: var(--muted); display: block; margin-top: 2px; }
+    .badge-free { background: var(--indigo); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 820px; margin: 0 auto; }
+    .p-card { background: #fff; border: 1.5px solid var(--border); border-radius: 18px; padding: 32px 26px; position: relative; }
+    .p-card.popular { border-color: var(--indigo); box-shadow: 0 0 0 4px rgba(79,70,229,0.07); }
+    .popular-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--indigo); color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .p-tier { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .p-price { font-family: 'Syne', sans-serif; font-size: 2.6rem; font-weight: 800; color: var(--ink); line-height: 1; }
+    .p-price sup { font-size: 1.1rem; vertical-align: super; }
+    .p-price sub { font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 400; color: var(--muted); }
+    .p-desc { font-size: 0.83rem; color: var(--muted); margin: 10px 0 22px; line-height: 1.5; }
+    .p-list { list-style: none; margin-bottom: 26px; }
+    .p-list li { font-size: 0.86rem; color: var(--muted); padding: 7px 0; border-bottom: 1px solid var(--paper); display: flex; gap: 8px; align-items: flex-start; }
+    .p-list li:last-child { border-bottom: none; }
+    .ck { color: var(--indigo); font-weight: 700; flex-shrink: 0; }
+    .btn-plan { width: 100%; padding: 12px; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all .2s; border: none; }
+    .btn-plan-primary { background: var(--indigo); color: #fff; }
+    .btn-plan-primary:hover { background: var(--violet); transform: translateY(-1px); }
+    .btn-plan-outline { background: #fff; color: var(--indigo); border: 1.5px solid var(--indigo); }
+    .btn-plan-outline:hover { background: #eef2ff; }
+    .btn-plan-muted { background: var(--paper); color: var(--muted); border: 1px solid var(--border); cursor: default; }
+
+    .faq-section { max-width: 620px; margin: 56px auto 0; }
+    .faq-section h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; text-align: center; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q { width: 100%; background: none; border: none; padding: 18px 0; text-align: left; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+    .faq-q:hover { color: var(--indigo); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+    .faq-a.open { max-height: 160px; }
+    .faq-a p { padding: 0 0 18px; font-size: 0.87rem; color: var(--muted); line-height: 1.7; }
+
+    #loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; color: var(--muted); }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--indigo); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .content { padding: 24px 16px; } }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div><span>Loading...</span></div>
+
+<div id="app" style="display:none;">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">Task<span>ly</span></div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">Workspace</div>
+        <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span> Dashboard</a>
+        <a href="#" class="nav-item"><span class="icon">📋</span> My Tasks</a>
+        <a href="#" class="nav-item"><span class="icon">📁</span> Projects</a>
+        <div class="nav-label">Account</div>
+        <a href="profile.html" class="nav-item"><span class="icon">👤</span> Profile</a>
+        <a href="pricing.html" class="nav-item active"><span class="icon">⚡</span> Upgrade Plan</a>
+        <a href="#" class="nav-item" onclick="logout(); return false;"><span class="icon">🚪</span> Log out</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="profile.html" class="user-pill">
+          <div class="avatar-sm" id="sidebar-avatar">?</div>
+          <div class="user-pill-info">
+            <strong id="sidebar-name">Loading...</strong>
+            <span id="sidebar-email">...</span>
+          </div>
+        </a>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar"><h1>Upgrade Plan</h1></div>
+      <div class="content">
+        <div class="page-header">
+          <h2>Simple, honest pricing</h2>
+          <p>Upgrade anytime. Cancel anytime. No surprises.</p>
+        </div>
+
+        <div class="current-plan">
+          <div>
+            <strong>Your current plan</strong>
+            <span>Free plan — limited to 5 tasks and 2 projects</span>
+          </div>
+          <span class="badge-free">FREE</span>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- FREE -->
+          <div class="p-card">
+            <div class="p-tier">Starter</div>
+            <div class="p-price"><sup>$</sup>0<sub>/mo</sub></div>
+            <p class="p-desc">For individuals just getting started.</p>
+            <ul class="p-list">
+              <li><span class="ck">✓</span> Up to 5 tasks</li>
+              <li><span class="ck">✓</span> 2 projects</li>
+              <li><span class="ck">✓</span> Basic dashboard</li>
+              <li><span class="ck">✓</span> Email support</li>
+            </ul>
+            <button class="btn-plan btn-plan-muted" disabled>Current plan</button>
+          </div>
+
+          <!-- PRO -->
+          <div class="p-card popular">
+            <div class="popular-badge">Most popular</div>
+            <div class="p-tier">Pro</div>
+            <div class="p-price"><sup>$</sup>18<sub>/mo</sub></div>
+            <p class="p-desc">For active teams who ship fast.</p>
+            <ul class="p-list">
+              <li><span class="ck">✓</span> Unlimited tasks</li>
+              <li><span class="ck">✓</span> Unlimited projects</li>
+              <li><span class="ck">✓</span> Progress dashboards</li>
+              <li><span class="ck">✓</span> Team collaboration</li>
+              <li><span class="ck">✓</span> Priority support</li>
+              <li><span class="ck">✓</span> Slack & GitHub integrations</li>
+            </ul>
+            <button class="btn-plan btn-plan-primary" onclick="handleUpgrade('pro')">Upgrade to Pro →</button>
+          </div>
+
+          <!-- ENTERPRISE -->
+          <div class="p-card">
+            <div class="p-tier">Enterprise</div>
+            <div class="p-price" style="font-size:1.9rem;padding-top:6px;">Custom</div>
+            <p class="p-desc">For large teams with custom needs.</p>
+            <ul class="p-list">
+              <li><span class="ck">✓</span> Everything in Pro</li>
+              <li><span class="ck">✓</span> SSO & advanced security</li>
+              <li><span class="ck">✓</span> Dedicated success manager</li>
+              <li><span class="ck">✓</span> SLA guarantee</li>
+              <li><span class="ck">✓</span> Custom onboarding</li>
+            </ul>
+            <a href="contact.html" class="btn-plan btn-plan-outline" style="display:block;text-align:center;text-decoration:none;">Talk to sales</a>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+          <h3>Pricing questions</h3>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Do I need a credit card to upgrade? <span>+</span></button>
+            <div class="faq-a"><p>Yes, a card is required for the Pro plan. We use Stripe for secure payment processing. Your card details are never stored on our servers.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <span>+</span></button>
+            <div class="faq-a"><p>Yes, completely. Cancel from your profile settings at any time. You keep Pro access until the end of your current billing period.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" onclick="toggleFaq(this)">What happens to my data if I downgrade? <span>+</span></button>
+            <div class="faq-a"><p>Your data stays safe. You'll be moved to read-only mode on items that exceed the free plan limits, but nothing is deleted.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'YOUR_PROJECT_URL'
+  const SUPABASE_KEY = 'YOUR_ANON_KEY'
+  const { createClient } = supabase
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = 'signup.html'; return; }
+    const user = session.user
+    const name = user.user_metadata?.full_name || user.email.split('@')[0]
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+    document.getElementById('sidebar-avatar').textContent = initials
+    document.getElementById('sidebar-name').textContent = name
+    document.getElementById('sidebar-email').textContent = user.email
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('app').style.display = 'block'
+  }
+
+  function handleUpgrade(plan) {
+    // Connect Stripe here when ready
+    // For now shows a message
+    alert('Payment integration coming soon! To set up Stripe, contact us at hello@taskly.io')
+  }
+
+  function toggleFaq(btn) {
+    const a = btn.nextElementSibling
+    const isOpen = a.classList.contains('open')
+    document.querySelectorAll('.faq-a').forEach(el => el.classList.remove('open'))
+    document.querySelectorAll('.faq-q span').forEach(s => s.textContent = '+')
+    if (!isOpen) { a.classList.add('open'); btn.querySelector('span').textContent = '−' }
+  }
+
+  async function logout() {
+    await sb.auth.signOut()
+    window.location.href = 'signup.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
+
