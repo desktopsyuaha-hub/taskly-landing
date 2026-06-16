@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taskly – Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --indigo: #4f46e5;
+      --ink:    #0f0f1a;
+      --muted:  #6b7280;
+      --paper:  #f7f7fb;
+      --border: #e5e7eb;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); }
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--indigo);
+    }
+    .logo span { color: var(--ink); }
+    .user-info { display: flex; align-items: center; gap: 14px; }
+    .user-info span { font-size: 0.88rem; color: var(--muted); }
+    .btn-logout {
+      padding: 8px 18px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-logout:hover { border-color: #dc2626; color: #dc2626; }
+    .main { padding: 48px 7%; max-width: 1000px; margin: 0 auto; }
+    .welcome {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .welcome-sub { color: var(--muted); margin-bottom: 40px; font-size: 0.95rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .stat-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid var(--border);
+    }
+    .stat-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--ink); }
+    .coming-soon {
+      margin-top: 48px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .coming-soon h2 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+    .coming-soon p { color: var(--muted); font-size: 0.92rem; }
+    #loading { text-align: center; padding: 80px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<div id="loading">Checking your session...</div>
+
+<div id="app" style="display:none;">
+  <div class="topbar">
+    <div class="logo">Task<span>ly</span></div>
+    <div class="user-info">
+      <span id="user-email"></span>
+      <button class="btn-logout" onclick="logout()">Log out</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="welcome">Good to see you, <span id="user-name">there</span> 👋</div>
+    <div class="welcome-sub">Here's your Taskly workspace.</div>
+    <div class="cards">
+      <div class="stat-card">
+        <div class="stat-label">Projects</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tasks open</div>
+        <div class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value">0</div>
+      </div>
+    </div>
+    <div class="coming-soon">
+      <h2>Your workspace is ready 🚀</h2>
+      <p>This is where your projects and tasks will live.<br>Full features coming soon.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ⚠️ SAME SUPABASE DETAILS AS signup.html
+  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.superbase.co'
+  const SUPABASE_KEY = 'sb_publishable_yFTME482ckovqLpJhZjnyA_73HkrZmj'
+
+  const { createClient } = supabase
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) {
+      window.location.href = 'signup.html'
+      return
+    }
+    const user = session.user
+    document.getElementById('user-email').textContent = user.email
+    document.getElementById('user-name').textContent =
+      user.user_metadata?.full_name?.split(' ')[0] || 'there'
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('app').style.display = 'block'
+  }
+
+  async function logout() {
+    await sb.auth.signOut()
+    window.location.href = 'signup.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
