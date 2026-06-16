@@ -113,12 +113,12 @@
       <nav class="sidebar-nav">
         <div class="nav-label">Workspace</div>
         <a href="dashboard.html" class="nav-item"><span class="icon">🏠</span> Dashboard</a>
-        <a href="#" class="nav-item"><span class="icon">📋</span> My Tasks</a>
-        <a href="#" class="nav-item"><span class="icon">📁</span> Projects</a>
+        <a href="profile.html" class="nav-item"><span class="icon">📋</span> My Tasks</a>
+        <a href="profile.html" class="nav-item"><span class="icon">📁</span> Projects</a>
         <div class="nav-label">Account</div>
         <a href="profile.html" class="nav-item active"><span class="icon">👤</span> Profile</a>
         <a href="pricing.html" class="nav-item"><span class="icon">⚡</span> Upgrade Plan</a>
-        <a href="#" class="nav-item" onclick="logout(); return false;"><span class="icon">🚪</span> Log out</a>
+        <a href="signup.html" class="nav-item" onclick="logout(); return false;"><span class="icon">🚪</span> Log out</a>
       </nav>
       <div class="sidebar-bottom">
         <a href="profile.html" class="user-pill">
@@ -206,8 +206,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = 'YOUR_PROJECT_URL'
-  const SUPABASE_KEY = 'YOUR_ANON_KEY'
+  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.superbase.co'
+  const SUPABASE_KEY = 'sb_publishable_yFTME482ckovqLpJhZjnyA_73HkrZmj'
   const { createClient } = supabase
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
