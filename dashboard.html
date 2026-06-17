@@ -406,28 +406,37 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.superbase.co'
+  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.supabase.co'
   const SUPABASE_KEY = 'sb_publishable_yFTME482ckovqLpJhZjnyA_73HkrZmj'
   const { createClient } = supabase
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   async function init() {
-    // Step 1: Let Supabase handle the URL hash first
-    const { data: { session }, error } = await sb.auth.getSession()
+  // Handle OAuth redirect properly
+  const { data: { session } } = await sb.auth.getSession()
 
+  if (session) {
+    loadUser(session.user)
+    return
+  }
+
+  // Listen for auth changes (important for Google login)
+  sb.auth.onAuthStateChange((event, session) => {
     if (session) {
       loadUser(session.user)
-      return
+    } else if (event === 'SIGNED_OUT') {
+      window.location.href = 'signup.html'
     }
+  })
 
-    // Step 2: No session yet — listen for it (catches Google redirect)
-    sb.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        loadUser(session.user)
-      } else if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
-        window.location.href = 'signup.html'
-      }
-    })
+  // Fallback (if nothing happens)
+  setTimeout(async () => {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) {
+      window.location.href = 'signup.html'
+    }
+  }, 3000)
+  }
 
     // Step 3: If after 4 seconds still nothing, go to signup
     setTimeout(async () => {
