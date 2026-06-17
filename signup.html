@@ -286,7 +286,7 @@
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'https://taskly-landing-seven.vercel.app/dashboard.html'
+      redirectTo: window.location.origin + '/dashboard.html'
     }
   })
   if (error) showMsg(error.message, 'error')
