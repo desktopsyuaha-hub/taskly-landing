@@ -225,13 +225,13 @@
         <a href="dashboard.html" class="nav-item active">
           <span class="icon">🏠</span> Dashboard
         </a>
-        <a href="#" class="nav-item">
+        <a href="profile.html" class="nav-item">
           <span class="icon">📋</span> My Tasks
         </a>
-        <a href="#" class="nav-item">
+        <a href="profile.html" class="nav-item">
           <span class="icon">📁</span> Projects
         </a>
-        <a href="#" class="nav-item">
+        <a href="profile.html" class="nav-item">
           <span class="icon">📅</span> Calendar
         </a>
         <div class="nav-label">Account</div>
@@ -241,7 +241,7 @@
         <a href="pricing.html" class="nav-item">
           <span class="icon">⚡</span> Upgrade Plan
         </a>
-        <a href="#" class="nav-item" onclick="logout(); return false;">
+        <a href="dashboard.html" class="nav-item" onclick="logout(); return false;">
           <span class="icon">🚪</span> Log out
         </a>
       </nav>
@@ -404,7 +404,6 @@
     </div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.superbase.co'
@@ -413,11 +412,46 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   async function init() {
+    // Check session
     const { data: { session } } = await sb.auth.getSession()
-    if (!session) { window.location.href = 'signup.html'; return; }
-    const user = session.user
-    const name = user.user_metadata?.full_name || user.email.split('@')[0]
-    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+
+    // If no session, check URL for access token (Google login lands here)
+    if (!session) {
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        // Wait for Supabase to process the token
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        const { data: { session: newSession } } = await sb.auth.getSession()
+        if (!newSession) {
+          window.location.href = 'signup.html'
+          return
+        }
+        loadUser(newSession.user)
+      } else {
+        window.location.href = 'signup.html'
+      }
+      return
+    }
+
+    loadUser(session.user)
+  }
+
+  function loadUser(user) {
+    // Try every possible place the name could be stored
+    const name =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.identities?.[0]?.identity_data?.full_name ||
+      user.identities?.[0]?.identity_data?.name ||
+      user.email.split('@')[0]
+
+    const initials = name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+
     document.getElementById('welcome-name').textContent = name.split(' ')[0]
     document.getElementById('sidebar-name').textContent = name
     document.getElementById('sidebar-email').textContent = user.email
@@ -431,7 +465,16 @@
     window.location.href = 'signup.html'
   }
 
+  // Listen for auth changes (catches Google redirect)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      loadUser(session.user)
+    }
+  })
+
   init()
 </script>
+
+  
 </body>
 </html>
