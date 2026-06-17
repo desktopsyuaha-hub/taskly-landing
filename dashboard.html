@@ -412,15 +412,15 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   async function init() {
-  // Handle OAuth redirect properly
   const { data: { session } } = await sb.auth.getSession()
 
+  // If session exists → load user
   if (session) {
     loadUser(session.user)
     return
   }
 
-  // Listen for auth changes (important for Google login)
+  // Listen for login (Google redirect case)
   sb.auth.onAuthStateChange((event, session) => {
     if (session) {
       loadUser(session.user)
@@ -429,51 +429,14 @@
     }
   })
 
-  // Fallback (if nothing happens)
+  // Fallback after delay
   setTimeout(async () => {
     const { data: { session } } = await sb.auth.getSession()
     if (!session) {
       window.location.href = 'signup.html'
     }
-  }, 3000)
+  }, 4000)
   }
-
-    // Step 3: If after 4 seconds still nothing, go to signup
-    setTimeout(async () => {
-      const { data: { session: retrySession } } = await sb.auth.getSession()
-      if (!retrySession) {
-        window.location.href = 'signup.html'
-      }
-    }, 4000)
-  }
-
-  function loadUser(user) {
-    const meta = user.user_metadata || {}
-    const identity = user.identities?.[0]?.identity_data || {}
-
-    const name =
-      meta.full_name ||
-      meta.name ||
-      identity.full_name ||
-      identity.name ||
-      user.email.split('@')[0]
-
-    const initials = name
-      .split(' ')
-      .filter(Boolean)
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || '?'
-
-    document.getElementById('welcome-name').textContent = name.split(' ')[0]
-    document.getElementById('sidebar-name').textContent = name
-    document.getElementById('sidebar-email').textContent = user.email
-    document.getElementById('sidebar-avatar').textContent = initials
-    document.getElementById('loading').style.display = 'none'
-    document.getElementById('app').style.display = 'block'
-  }
-
   async function logout() {
     await sb.auth.signOut()
     window.location.href = 'signup.html'
