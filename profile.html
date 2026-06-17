@@ -213,14 +213,37 @@
 
   let currentUser = null
 
-  async function init() {
-    const { data: { session } } = await sb.auth.getSession()
-    if (!session) { window.location.href = 'signup.html'; return; }
+  
+    async function init() {
+  const { data: { session } } = await sb.auth.getSession()
+
+  if (!session) {
+    const hash = window.location.hash
+    if (hash && hash.includes('access_token')) {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      const { data: { session: newSession } } = await sb.auth.getSession()
+      if (!newSession) { window.location.href = 'signup.html'; return; }
+      currentUser = newSession.user
+    } else {
+      window.location.href = 'signup.html'
+      return
+    }
+  } else {
     currentUser = session.user
-    const meta = currentUser.user_metadata || {}
-    const fullName = meta.full_name || ''
-    const parts = fullName.split(' ')
-    const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) || '?'
+  }
+
+  const meta = currentUser.user_metadata || {}
+
+  // Catches BOTH Google login and email signup names
+  const fullName =
+    meta.full_name ||
+    meta.name ||
+    currentUser.identities?.[0]?.identity_data?.full_name ||
+    currentUser.identities?.[0]?.identity_data?.name ||
+    currentUser.email.split('@')[0]
+
+  const parts = fullName.split(' ')
+  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) || '?'
 
     document.getElementById('first-name').value = parts[0] || ''
     document.getElementById('last-name').value = parts.slice(1).join(' ') || ''
