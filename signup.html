@@ -282,7 +282,7 @@
     window.location.href = 'profile.html'
   }
 
-  async function handleGoogle() {
+   async function handleGoogle() {
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -290,7 +290,7 @@
     }
   })
   if (error) showMsg(error.message, 'error')
-  }
+   }
   
 </script>
 </body>
