@@ -206,59 +206,53 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.superbase.co'
+  const SUPABASE_URL = 'https://gcaozjvzratzzbusznfz.supabase.co'
   const SUPABASE_KEY = 'sb_publishable_yFTME482ckovqLpJhZjnyA_73HkrZmj'
   const { createClient } = supabase
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   let currentUser = null
 
-  
-    async function init() {
+  async function init() {
   const { data: { session } } = await sb.auth.getSession()
 
   if (!session) {
-    const hash = window.location.hash
-    if (hash && hash.includes('access_token')) {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      const { data: { session: newSession } } = await sb.auth.getSession()
-      if (!newSession) { window.location.href = 'signup.html'; return; }
-      currentUser = newSession.user
-    } else {
-      window.location.href = 'signup.html'
-      return
-    }
-  } else {
-    currentUser = session.user
+    window.location.href = 'signup.html'
+    return
   }
+
+  currentUser = session.user
 
   const meta = currentUser.user_metadata || {}
 
-  // Catches BOTH Google login and email signup names
   const fullName =
     meta.full_name ||
     meta.name ||
     currentUser.identities?.[0]?.identity_data?.full_name ||
-    currentUser.identities?.[0]?.identity_data?.name ||
     currentUser.email.split('@')[0]
 
   const parts = fullName.split(' ')
-  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) || '?'
+  const initials = parts.map(n => n[0]).join('').toUpperCase().slice(0,2) || '?'
 
-    document.getElementById('first-name').value = parts[0] || ''
-    document.getElementById('last-name').value = parts.slice(1).join(' ') || ''
-    document.getElementById('job-title').value = meta.job_title || ''
-    document.getElementById('company').value = meta.company || ''
-    document.getElementById('profile-email-input').value = currentUser.email
-    document.getElementById('profile-name').textContent = fullName || currentUser.email
-    document.getElementById('profile-email').textContent = currentUser.email
-    document.getElementById('big-avatar').textContent = initials
-    document.getElementById('sidebar-avatar').textContent = initials
-    document.getElementById('sidebar-name').textContent = fullName || currentUser.email
-    document.getElementById('sidebar-email').textContent = currentUser.email
-    document.getElementById('loading').style.display = 'none'
-    document.getElementById('app').style.display = 'block'
+  document.getElementById('first-name').value = parts[0] || ''
+  document.getElementById('last-name').value = parts.slice(1).join(' ') || ''
+  document.getElementById('job-title').value = meta.job_title || ''
+  document.getElementById('company').value = meta.company || ''
+  document.getElementById('profile-email-input').value = currentUser.email
+
+  document.getElementById('profile-name').textContent = fullName
+  document.getElementById('profile-email').textContent = currentUser.email
+  document.getElementById('big-avatar').textContent = initials
+  document.getElementById('sidebar-avatar').textContent = initials
+  document.getElementById('sidebar-name').textContent = fullName
+  document.getElementById('sidebar-email').textContent = currentUser.email
+
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('app').style.display = 'block'
   }
+    
+    
+     
 
   function showMsg(id, text, type) {
     const el = document.getElementById(id)
