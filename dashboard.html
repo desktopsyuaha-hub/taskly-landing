@@ -412,45 +412,50 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
   async function init() {
-    // Check session
-    const { data: { session } } = await sb.auth.getSession()
+    // Step 1: Let Supabase handle the URL hash first
+    const { data: { session }, error } = await sb.auth.getSession()
 
-    // If no session, check URL for access token (Google login lands here)
-    if (!session) {
-      const hash = window.location.hash
-      if (hash && hash.includes('access_token')) {
-        // Wait for Supabase to process the token
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        const { data: { session: newSession } } = await sb.auth.getSession()
-        if (!newSession) {
-          window.location.href = 'signup.html'
-          return
-        }
-        loadUser(newSession.user)
-      } else {
-        window.location.href = 'signup.html'
-      }
+    if (session) {
+      loadUser(session.user)
       return
     }
 
-    loadUser(session.user)
+    // Step 2: No session yet — listen for it (catches Google redirect)
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        loadUser(session.user)
+      } else if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+        window.location.href = 'signup.html'
+      }
+    })
+
+    // Step 3: If after 4 seconds still nothing, go to signup
+    setTimeout(async () => {
+      const { data: { session: retrySession } } = await sb.auth.getSession()
+      if (!retrySession) {
+        window.location.href = 'signup.html'
+      }
+    }, 4000)
   }
 
   function loadUser(user) {
-    // Try every possible place the name could be stored
+    const meta = user.user_metadata || {}
+    const identity = user.identities?.[0]?.identity_data || {}
+
     const name =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.identities?.[0]?.identity_data?.full_name ||
-      user.identities?.[0]?.identity_data?.name ||
+      meta.full_name ||
+      meta.name ||
+      identity.full_name ||
+      identity.name ||
       user.email.split('@')[0]
 
     const initials = name
       .split(' ')
+      .filter(Boolean)
       .map(n => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2)
+      .slice(0, 2) || '?'
 
     document.getElementById('welcome-name').textContent = name.split(' ')[0]
     document.getElementById('sidebar-name').textContent = name
@@ -465,15 +470,9 @@
     window.location.href = 'signup.html'
   }
 
-  // Listen for auth changes (catches Google redirect)
-  sb.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      loadUser(session.user)
-    }
-  })
-
   init()
 </script>
+
 
   
 </body>
